@@ -105,6 +105,21 @@ pp_wide <- aug %>%
 
 
 
+
+
+# label vars -------
+
+attr(aug$geo_race_vote_pct, "label")  <- "Proportion of total votes in party ballot"
+attr(aug$party, "label")  <- "Candidate's party"
+attr(aug$ballot, "label")  <- "Party ballot for closed primaries, candidate's party for open"
+attr(aug$vote, "label") <- "votes for candidate in county"
+attr(aug$st, "label") <- "state (abbreviated)"
+attr(aug$candidate, "label") <- "candidate name"
+attr(aug$lastname, "label") <- "candidate last name"
+attr(aug$fips, "label") <- "county FIPS code"
+
+
+
 saveRDS(aug, "data/output/2016-primary_long.Rds")
 write_dta(aug, "data/output/2016-primary_long.dta")
 saveRDS(pp_wide, "data/output/2016-primary_president_wide.Rds")
