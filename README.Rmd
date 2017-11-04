@@ -13,17 +13,19 @@ library(dplyr)
 
 ## Candidate-level data
 
-`2016_primary_long` has vote and vote share at the candidate level.
+`2016_primary_long` has vote and vote share at the candidate level, for state-wide candidate races (President, Senate, Governor)
 
-```{r}
-readRDS("data/output/2016-primary_long.Rds")
+```{r, echo = FALSE}
+readRDS("data/output/2016-primary_long.Rds") %>% 
+  select(office, st, county, fips, candidate, party, vote, everything())
 ```
 
 
 
 A random sample
-```{r}
-sample_n(readRDS("data/output/2016-primary_long.Rds"), 10)
+```{r, echo = FALSE}
+sample_n(readRDS("data/output/2016-primary_long.Rds"), 10) %>% 
+  select(office, st, county, fips, candidate, party, vote, everything())
 ```
 
 
@@ -34,7 +36,7 @@ sample_n(readRDS("data/output/2016-primary_long.Rds"), 10)
 
 `2016_primary_wide` has the vote share of the major presidential candidates at the county level.
 
-```{r}
+```{r, echo = FALSE}
 sample_n(readRDS("data/output/2016-primary_president_wide.Rds"), 10)
 ```
 

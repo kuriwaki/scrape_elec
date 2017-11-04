@@ -4,52 +4,62 @@ Primary Elections Data Documentation
 Candidate-level data
 --------------------
 
-`2016_primary_long` has vote and vote share at the candidate level.
+`2016_primary_long` has vote and vote share at the candidate level, for state-wide candidate races (President, Senate, Governor)
 
-``` r
-sample_n(readRDS("data/output/2016-primary_long.Rds"), 10)
-```
+    ## # A tibble: 62,219 x 11
+    ##       office    st         county  fips       candidate party  vote
+    ##        <chr> <chr>          <chr> <int>           <chr> <chr> <dbl>
+    ##  1 President    AL Autauga County  1001      H. Clinton     D  2387
+    ##  2 President    AL Autauga County  1001      B. Sanders     D   544
+    ##  3 President    AL Autauga County  1001     Uncommitted     D    42
+    ##  4 President    AL Autauga County  1001 R. De La Fuente     D     6
+    ##  5 President    AL Autauga County  1001     M. O'Malley     D     3
+    ##  6 President    AL Autauga County  1001        D. Trump     R  5387
+    ##  7 President    AL Autauga County  1001         T. Cruz     R  2482
+    ##  8 President    AL Autauga County  1001        M. Rubio     R  1785
+    ##  9 President    AL Autauga County  1001       B. Carson     R  1764
+    ## 10 President    AL Autauga County  1001       J. Kasich     R   421
+    ## # ... with 62,209 more rows, and 4 more variables: state <chr>,
+    ## #   ballot <chr>, lastname <chr>, geo_race_vote_pct <dbl>
+
+A random sample
 
     ## # A tibble: 10 x 11
-    ##       office    st          state           county  fips       ballot
-    ##        <chr> <chr>          <chr>            <chr> <int>        <chr>
-    ##  1 President    OK       Oklahoma  Okfuskee County 40107   Republican
-    ##  2  Governor    WA     Washington  Columbia County 53013 Open Primary
-    ##  3 President    FL        Florida    Martin County 12085   Republican
-    ##  4 President    KY       Kentucky  Calloway County 21035   Democratic
-    ##  5 President    GA        Georgia    Elbert County 13105   Democratic
-    ##  6 President    OK       Oklahoma   Choctaw County 40023   Democratic
-    ##  7 President    NY       New York    Ulster County 36111   Republican
-    ##  8 President    MI       Michigan    Branch County 26023   Republican
-    ##  9 President    AR       Arkansas     White County  5145   Democratic
-    ## 10 President    NC North Carolina Henderson County 37089   Republican
-    ## # ... with 5 more variables: candidate <chr>, lastname <chr>, party <chr>,
-    ## #   vote <dbl>, geo_race_vote_pct <dbl>
+    ##       office    st                county  fips    candidate party  vote
+    ##        <chr> <chr>                 <chr> <int>        <chr> <chr> <dbl>
+    ##  1 President    TX          Crane County 48103    L. Graham     R     1
+    ##  2    Senate    FL        Madison County 12079    E. Rivera     R    47
+    ##  3 President    MO Ste. Genevieve County 29186      K. Judd     D     1
+    ##  4 President    VA      Buena Vista City 51530     M. Rubio     R   180
+    ##  5 President    NH        Belknap County 33001  R. Santorum     R    13
+    ##  6    Senate    OR     Hood River County 41027  M. Callahan     R   647
+    ##  7 President    VA          Scott County 51169     D. Trump     R  1487
+    ##  8 President    IL         Fulton County 17057     M. Rubio     R   248
+    ##  9 President    ME       Somerset County    NA     D. Trump     R   270
+    ## 10  Governor    MT        Granite County 30039 B. McChesney     D    46
+    ## # ... with 4 more variables: state <chr>, ballot <chr>, lastname <chr>,
+    ## #   geo_race_vote_pct <dbl>
 
 County-level data
 -----------------
 
 `2016_primary_wide` has the vote share of the major presidential candidates at the county level.
 
-``` r
-sample_n(readRDS("data/output/2016-primary_president_wide.Rds"), 10)
-```
-
     ## # A tibble: 10 x 12
-    ##       office    st          state            county  fips Clinton Sanders
-    ##        <chr> <chr>          <chr>             <chr> <int>   <dbl>   <dbl>
-    ##  1 President    FL        Florida Okeechobee County 12093   0.552   0.376
-    ##  2 President    IN        Indiana     Tipton County 18159   0.419   0.581
-    ##  3 President    WI      Wisconsin    Burnett County 55013   0.494   0.503
-    ##  4 President    ID          Idaho     Valley County 16085   0.269   0.731
-    ##  5 President    AL        Alabama     Monroe County  1099   0.909   0.076
-    ##  6 President    GA        Georgia     Gordon County 13129   0.575   0.410
-    ##  7 President    NC North Carolina   Randolph County 37151   0.466   0.458
-    ##  8 President    PA   Pennsylvania     Beaver County 42007   0.567   0.418
-    ##  9 President    FL        Florida   Sarasota County 12115   0.611   0.373
-    ## 10    Senate    FL        Florida    Manatee County 12081      NA      NA
-    ## # ... with 5 more variables: Trump <dbl>, Kasich <dbl>, Carson <dbl>,
-    ## #   Cruz <dbl>, Rubio <dbl>
+    ##       office    st    state           county  fips Clinton Sanders Trump
+    ##        <chr> <chr>    <chr>            <chr> <int>   <dbl>   <dbl> <dbl>
+    ##  1 President    CO Colorado      Lake County  8065   0.235   0.730    NA
+    ##  2 President    VA Virginia    Franklin City 51620   0.882   0.110 0.379
+    ##  3 President    GA  Georgia    Barrow County 13013   0.617   0.372 0.408
+    ##  4 President    TX    Texas    Cottle County 48101   0.565   0.391 0.270
+    ##  5 President    IL Illinois Alexander County 17003   0.600   0.338 0.524
+    ##  6 President    WY  Wyoming    Goshen County 56015   0.600   0.400    NA
+    ##  7 President    MO Missouri    Camden County 29029   0.489   0.499 0.549
+    ##  8 President    CO Colorado  Costilla County  8023   0.566   0.204    NA
+    ##  9 President    AR Arkansas    Howard County  5061   0.765   0.185 0.345
+    ## 10 President    AL  Alabama    Blount County  1009   0.551   0.386 0.487
+    ## # ... with 4 more variables: Kasich <dbl>, Carson <dbl>, Cruz <dbl>,
+    ## #   Rubio <dbl>
 
 Data Construction
 -----------------
