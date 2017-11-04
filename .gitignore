@@ -9,4 +9,5 @@ bbc-election-results
 # data
 *.Rds
 *.csv
+*.dta
 
