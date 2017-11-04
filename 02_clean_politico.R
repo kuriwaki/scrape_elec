@@ -1,27 +1,24 @@
+rm(list = ls())
+
+
 library(ggplot2)
 library(dplyr)
 library(readr)
+library(tidyr)
 library(data.table)
-library(ggridges)
+library(haven)
+
+
+
+
 
 pp_raw <- read_csv("election_2016_data/data/presidential_primaries_2016_by_county.csv")
 sp_raw <- read_csv("election_2016_data/data/senate_primaries_2016_by_county.csv")
 gp_raw <- read_csv("election_2016_data/data/governor_primaries_2016_by_county.csv")
 
+# augmentation datasets
+pmr_long <- readRDS("data/input/augment/pres_me_r.Rds")
 
-pres_me_r <- readRDS("data/input/augment/pres_me_r.Rds")
-
-
-pp_wide <-  pp %>% 
-  as.data.table() %>% 
-  dcast(state + fips + geo_name ~ name,
-        value.var = "votes",
-        fun.aggregate = sum)
-
-
-
-table(pp$individual_party)
-table(pp$party)
 
 # office / state/ county/ party / candidate  /vote
 
@@ -35,12 +32,12 @@ std_fmt <- function(df, office) {
     mutate(office = office,
            geo_race_vote_pct = vote_pct / 100) %>%
     rename(candidate = name,
-           primary_type = party,
+           ballot = party,
            party = individual_party,
            county = geo_name,
            vote = votes)   %>%
     mutate(party = recode(party, democrat = "D", republican = "R", independent_or_other = "I/O")) %>%
-  select(office, state, county, fips, primary_type, candidate, party, vote, geo_race_vote_pct)
+  select(office, state, county, fips, ballot, candidate, party, vote, geo_race_vote_pct)
 }
 
 
@@ -51,6 +48,18 @@ races_fmt <- bind_rows(
   std_fmt(gp_raw, "Governor"),
   std_fmt(sp_raw, "Senate")
 )
+
+
+# Sort out ballot remove is.na(ballot)
+
+ballot_fmt <-  races_fmt %>%
+  mutate(ballot = case_when(office == "President" & state == "Wyoming" & party == "D" ~ "Democratic",
+                            office == "President" & state == "Colorado" & party == "D" ~ "Democratic",
+                            TRUE ~ ballot))
+
+filter(races_fmt, state == "Colorado", office == "President", candidate == "H. Clinton") %>% 
+  print(n = 64)
+
 
 
 # check county code unique ----
@@ -70,37 +79,23 @@ st_abb <- tibble(state = state.name,
                  st = state.abb) 
 
 
-name_fmt <-  races_fmt %>%
+name_fmt <-  ballot_fmt %>%
    mutate(lastname = gsub("[A-Z]\\.\\s", "", candidate),
-          primary_type = gsub("Democrat$", "Democratic", primary_type))
+          ballot = gsub("Democrat$", "Democratic", ballot))
 
 df <- left_join(name_fmt, st_abb) %>% 
-  select(office, st, state, county, fips, primary_type, candidate, lastname, everything())
+  select(office, st, state, county, fips, ballot, candidate, lastname, everything())
 
 
 # Augment missings ---------
 
-pmr_long <- melt(as.data.table(pres_me_r),
-                 id.vars = "county",  
-                 variable.name = "lastname", 
-                 value.name = "vote")
-
-pmr_tot <- group_by(pmr_long, county) %>% summarize(total_votes = sum(vote))
-
-pmr <- pmr_long %>% 
-  left_join(pmr_tot, by = "county") %>%
-  mutate(geo_race_vote_pct = vote/total_votes) %>%
-  mutate(office = "President",
-         primary_type = "Republican", 
-         party = "R",
-         st = "ME",
-         state = "Maine")
+aug <- bind_rows(df, pmr_long)
 
 
 
 
-# wide dataset with major candidates ----
-cand_wide <- df %>%
+# wide dataset with major candidates  in prez ----
+pp_wide <- aug %>%
   filter(lastname %in% c("Clinton", "Sanders", "Trump", "Carson", "Rubio", "Kasich", "Cruz")) %>% 
   as.data.table() %>%
   dcast(office + st +  state + county + fips ~ lastname,
@@ -109,31 +104,7 @@ cand_wide <- df %>%
   tbl_df()
 
 
-ggplot(cand_wide, aes(x = Clinton)) + 
-  geom_histogram(bins = 20) +
-  facet_wrap(~state)
 
-
-# Aggregate counts
-totals  <-  df %>% 
-  group_by(office, state, st, county, fips) %>%
-  summarize(total_votes_R = sum(vote*(primary_type == "Republican"), na.rm = TRUE),
-            total_votes_D = sum(vote*(primary_type == "Democratic"), na.rm = TRUE)) %>% 
-  ungroup()
-
-
-
-
-# check missings 
-cand_wide %>% 
-  filter(st %in%  c("WY", "CO", "ME"))
-
-
-filter(pp_raw, state == "Maine") %>% 
-  sample_n(10)
-
-
-
-saveRDS(df, "data/output/2016-primary_long.Rds")
-saveRDS(cand_wide, "data/output/2016-primary_wide.Rds")
-saveRDS(totals, "data/output/2016-primary_totals.Rds")
+saveRDS(aug, "data/output/2016-primary_long.Rds")
+write_dta(aug, "data/output/2016-primary_long.dta")
+saveRDS(pp_wide, "data/output/2016-primary_president_wide.Rds")
