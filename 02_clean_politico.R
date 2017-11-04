@@ -9,6 +9,8 @@ sp_raw <- read_csv("election_2016_data/data/senate_primaries_2016_by_county.csv"
 gp_raw <- read_csv("election_2016_data/data/governor_primaries_2016_by_county.csv")
 
 
+pres_me_r <- readRDS("data/input/augment/pres_me_r.Rds")
+
 
 pp_wide <-  pp %>% 
   as.data.table() %>% 
@@ -76,8 +78,28 @@ df <- left_join(name_fmt, st_abb) %>%
   select(office, st, state, county, fips, primary_type, candidate, lastname, everything())
 
 
+# Augment missings ---------
 
-# wide dataset with major candidates
+pmr_long <- melt(as.data.table(pres_me_r),
+                 id.vars = "county",  
+                 variable.name = "lastname", 
+                 value.name = "vote")
+
+pmr_tot <- group_by(pmr_long, county) %>% summarize(total_votes = sum(vote))
+
+pmr <- pmr_long %>% 
+  left_join(pmr_tot, by = "county") %>%
+  mutate(geo_race_vote_pct = vote/total_votes) %>%
+  mutate(office = "President",
+         primary_type = "Republican", 
+         party = "R",
+         st = "ME",
+         state = "Maine")
+
+
+
+
+# wide dataset with major candidates ----
 cand_wide <- df %>%
   filter(lastname %in% c("Clinton", "Sanders", "Trump", "Carson", "Rubio", "Kasich", "Cruz")) %>% 
   as.data.table() %>%
@@ -87,7 +109,7 @@ cand_wide <- df %>%
   tbl_df()
 
 
-ggplot(cand_wide, aes(x = Trump)) + 
+ggplot(cand_wide, aes(x = Clinton)) + 
   geom_histogram(bins = 20) +
   facet_wrap(~state)
 
